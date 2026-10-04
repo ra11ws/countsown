@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Countdown - 10 AM Oct 5</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+    .bg { position: fixed; inset: 0; background: url('background.jpg') center center / cover no-repeat; z-index: 0; }
+    .bg-overlay { position: fixed; inset: 0; z-index: 1; background: radial-gradient(ellipse 70% 60% at 50% 38%, rgba(0,0,0,0) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.72) 80%, rgba(0,0,0,0.92) 100%); }
+    .letterbox-top, .letterbox-bottom { position: fixed; left: 0; right: 0; z-index: 2; height: 10vh; background: #000; }
+    .letterbox-top { top: 0; }
+    .letterbox-bottom { bottom: 0; }
+    .rays { position: fixed; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
+    .ray { position: absolute; top: 0; left: 50%; transform-origin: top center; width: var(--w, 60px); height: 140vh; background: linear-gradient(to bottom, var(--col, rgba(220,140,180,0.18)) 0%, transparent 75%); filter: blur(var(--blur, 18px)); opacity: 0; animation: rayPulse var(--dur, 5s) ease-in-out infinite var(--dl, 0s); transform: translateX(-50%) rotate(var(--rot, 0deg)); }
+    @keyframes rayPulse {
+      0%   { opacity: 0;    transform: translateX(-50%) rotate(var(--rot)) scaleX(0.6); }
+      20%  { opacity: var(--peak, 0.7); transform: translateX(-50%) rotate(var(--rot)) scaleX(1); }
+      50%  { opacity: calc(var(--peak, 0.7) * 0.6); }
+      80%  { opacity: var(--peak, 0.7); transform: translateX(-50%) rotate(var(--rot)) scaleX(1.1); }
+      100% { opacity: 0;    transform: translateX(-50%) rotate(var(--rot)) scaleX(0.6); }
+    }
+    .center-glow { position: fixed; z-index: 3; top: 30%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 300px; background: radial-gradient(ellipse at center, rgba(230,150,200,0.28) 0%, rgba(180,80,200,0.12) 40%, transparent 70%); pointer-events: none; animation: glowBreath 4s ease-in-out infinite alternate; }
+    @keyframes glowBreath { from { opacity: 0.7; transform: translate(-50%,-50%) scale(1); } to { opacity: 1; transform: translate(-50%,-50%) scale(1.15); } }
+    .shaft { position: fixed; z-index: 3; top: 0; left: 50%; transform: translateX(-50%); width: 180px; height: 55vh; background: linear-gradient(to bottom, rgba(255,210,240,0.22) 0%, rgba(200,100,200,0.10) 50%, transparent 100%); filter: blur(22px); pointer-events: none; animation: shaftFlicker 6s ease-in-out infinite alternate; }
+    @keyframes shaftFlicker { 0% { opacity: 0.5; width: 160px; } 50% { opacity: 0.9; width: 220px; } 100% { opacity: 0.6; width: 170px; } }
+    .vignette { position: fixed; inset: 0; z-index: 4; pointer-events: none; background: radial-gradient(ellipse 80% 70% at 50% 50%, transparent 30%, rgba(0,0,0,0.6) 100%); }
+    .stage { position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .pre-label { font-family: 'Rajdhani', sans-serif; font-size: clamp(0.65rem, 1.2vw, 0.9rem); font-weight: 600; letter-spacing: 0.4em; color: rgba(255,255,255,0.45); text-transform: uppercase; margin-bottom: 18px; }
+    .time-row { display: flex; align-items: flex-end; gap: 0; }
+    .unit { display: flex; flex-direction: column; align-items: center; }
+    .digits { display: flex; gap: clamp(4px, 0.8vw, 10px); line-height: 1; }
+    .d { font-family: 'Bebas Neue', sans-serif; font-size: clamp(4rem, 10vw, 9rem); color: #ffffff; text-shadow: 0 0 30px rgba(220,140,200,0.5), 0 2px 4px rgba(0,0,0,0.8); letter-spacing: 0; transition: transform 0.06s ease; }
+    .d.flip { animation: flipDigit 0.12s ease-in-out; }
+    @keyframes flipDigit { 0% { transform: scaleY(1); } 40% { transform: scaleY(0.1); opacity: 0.4; } 100% { transform: scaleY(1); opacity: 1; } }
+    .unit-label { font-family: 'Rajdhani', sans-serif; font-size: clamp(0.55rem, 1.1vw, 0.85rem); font-weight: 700; letter-spacing: 0.35em; color: rgba(255,255,255,0.55); text-transform: uppercase; margin-top: 6px; }
+    .colon { font-family: 'Bebas Neue', sans-serif; font-size: clamp(4rem, 10vw, 9rem); color: rgba(255,255,255,0.85); line-height: 1; padding: 0 clamp(8px, 1.5vw, 22px); padding-bottom: 28px; text-shadow: 0 0 20px rgba(220,140,200,0.5); animation: colonBlink 1s step-start infinite; }
+    @keyframes colonBlink { 50% { opacity: 0.2; } }
+    .divider { width: 55%; height: 1px; background: linear-gradient(90deg, transparent, rgba(200,120,180,0.5) 30%, rgba(200,120,180,0.5) 70%, transparent); margin-top: 22px; }
+    #soundBtn { margin-top: 30px; background: transparent; border: 1px solid rgba(255,255,255,0.2); border-radius: 40px; padding: 8px 26px; color: rgba(255,255,255,0.4); font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; transition: all 0.3s; }
+    #soundBtn:hover { border-color: rgba(220,140,200,0.6); color: rgba(255,255,255,0.85); box-shadow: 0 0 16px rgba(180,60,200,0.3); }
+    #soundBtn.active { border-color: rgba(220,140,200,0.7); color: rgba(255,255,255,0.8); }
+    .expired-msg { display: none; font-family: 'Bebas Neue', sans-serif; font-size: clamp(3rem, 8vw, 7rem); color: #fff; letter-spacing: 0.15em; text-shadow: 0 0 60px rgba(220,100,200,0.9), 0 0 120px rgba(180,60,200,0.6); animation: expiredPulse 1.5s ease-in-out infinite alternate; }
+    @keyframes expiredPulse { from { opacity: 0.8; } to { opacity: 1; text-shadow: 0 0 100px rgba(255,150,230,1); } }
+    @media (max-width: 540px) { .colon { padding: 0 6px 24px; } .unit-label { letter-spacing: 0.15em; } }
+  </style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="bg-overlay"></div>
+<div class="rays">
+  <div class="ray" style="--rot:-2deg;  --w:80px;  --blur:14px; --col:rgba(240,180,220,0.25); --dur:4s;   --dl:0s;    --peak:0.9;"></div>
+  <div class="ray" style="--rot:2deg;   --w:70px;  --blur:14px; --col:rgba(255,200,230,0.20); --dur:4.5s; --dl:-0.5s; --peak:0.8;"></div>
+  <div class="ray" style="--rot:-18deg; --w:140px; --blur:24px; --col:rgba(200,80,180,0.18);  --dur:6s;   --dl:-1s;   --peak:0.7;"></div>
+  <div class="ray" style="--rot:-28deg; --w:90px;  --blur:20px; --col:rgba(180,60,200,0.15);  --dur:7s;   --dl:-2s;   --peak:0.6;"></div>
+  <div class="ray" style="--rot:-40deg; --w:110px; --blur:28px; --col:rgba(160,40,180,0.12);  --dur:8s;   --dl:-3.5s; --peak:0.5;"></div>
+  <div class="ray" style="--rot:-55deg; --w:80px;  --blur:22px; --col:rgba(140,30,160,0.10);  --dur:9s;   --dl:-1.5s; --peak:0.4;"></div>
+  <div class="ray" style="--rot:18deg;  --w:140px; --blur:24px; --col:rgba(200,80,180,0.18);  --dur:6.5s; --dl:-2s;   --peak:0.7;"></div>
+  <div class="ray" style="--rot:28deg;  --w:90px;  --blur:20px; --col:rgba(180,60,200,0.15);  --dur:7.5s; --dl:-0.5s; --peak:0.6;"></div>
+  <div class="ray" style="--rot:40deg;  --w:110px; --blur:28px; --col:rgba(160,40,180,0.12);  --dur:5.5s; --dl:-4s;   --peak:0.5;"></div>
+  <div class="ray" style="--rot:55deg;  --w:80px;  --blur:22px; --col:rgba(140,30,160,0.10);  --dur:8.5s; --dl:-2.5s; --peak:0.4;"></div>
+  <div class="ray" style="--rot:-75deg; --w:60px;  --blur:30px; --col:rgba(120,20,140,0.08);  --dur:10s;  --dl:-5s;   --peak:0.3;"></div>
+  <div class="ray" style="--rot:75deg;  --w:60px;  --blur:30px; --col:rgba(120,20,140,0.08);  --dur:10s;  --dl:-1s;   --peak:0.3;"></div>
+</div>
+<div class="shaft"></div>
+<div class="center-glow"></div>
+<div class="vignette"></div>
+<div class="letterbox-top"></div>
+<div class="letterbox-bottom"></div>
+<div class="stage">
+  <div class="pre-label">Counting Down To &nbsp;&middot;&nbsp; 10:00 AM &nbsp;&middot;&nbsp; October 5</div>
+  <div class="time-row" id="timeRow">
+    <div class="unit">
+      <div class="digits"><span class="d" id="d0">0</span><span class="d" id="d1">0</span></div>
+      <div class="unit-label">Days</div>
+    </div>
+    <div class="colon">:</div>
+    <div class="unit">
+      <div class="digits"><span class="d" id="h0">0</span><span class="d" id="h1">0</span></div>
+      <div class="unit-label">Hours</div>
+    </div>
+    <div class="colon">:</div>
+    <div class="unit">
+      <div class="digits"><span class="d" id="m0">0</span><span class="d" id="m1">0</span></div>
+      <div class="unit-label">Minutes</div>
+    </div>
+    <div class="colon">:</div>
+    <div class="unit">
+      <div class="digits"><span class="d" id="s0">0</span><span class="d" id="s1">0</span></div>
+      <div class="unit-label">Seconds</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="expired-msg" id="expiredMsg">It's Time</div>
+  <button id="soundBtn" onclick="toggleSound()">🔇 &nbsp; Enable Tick Sound</button>
+</div>
+<script>
+  const target = new Date('2026-10-05T10:00:00');
+  let audioCtx = null, soundOn = false;
+  function tick() {
+    if (!audioCtx) return;
+    const sr = audioCtx.sampleRate;
+    const buf = audioCtx.createBuffer(1, sr * 0.05, sr);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random()*2-1) * Math.exp(-i/(sr*0.009));
+    const src = audioCtx.createBufferSource(); src.buffer = buf;
+    const bpf = audioCtx.createBiquadFilter(); bpf.type='bandpass'; bpf.frequency.value=1600; bpf.Q.value=1.8;
+    const g = audioCtx.createGain(); g.gain.value = 0.4;
+    src.connect(bpf); bpf.connect(g); g.connect(audioCtx.destination); src.start();
+  }
+  function toggleSound() {
+    const btn = document.getElementById('soundBtn');
+    if (!soundOn) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); soundOn = true; btn.textContent = '🔊  Tick Sound ON'; btn.classList.add('active'); }
+    else { soundOn = false; if (audioCtx) { audioCtx.close(); audioCtx = null; } btn.textContent = '🔇  Enable Tick Sound'; btn.classList.remove('active'); }
+  }
+  const els = { d0:document.getElementById('d0'), d1:document.getElementById('d1'), h0:document.getElementById('h0'), h1:document.getElementById('h1'), m0:document.getElementById('m0'), m1:document.getElementById('m1'), s0:document.getElementById('s0'), s1:document.getElementById('s1') };
+  const prev = { d:'', h:'', m:'', s:'' };
+  function setD(id0, id1, val, key) {
+    const s = String(val).padStart(2,'0');
+    if (s !== prev[key]) {
+      if (s[0] !== prev[key][0]) { els[id0].classList.remove('flip'); void els[id0].offsetWidth; els[id0].classList.add('flip'); }
+      if (s[1] !== prev[key][1]) { els[id1].classList.remove('flip'); void els[id1].offsetWidth; els[id1].classList.add('flip'); }
+      els[id0].textContent = s[0]; els[id1].textContent = s[1]; prev[key] = s;
+    }
+  }
+  let lastSec = -1;
+  function update() {
+    const diff = target - new Date();
+    if (diff <= 0) { document.getElementById('timeRow').style.display='none'; document.getElementById('expiredMsg').style.display='block'; return; }
+    const total = Math.floor(diff/1000);
+    const ss = total%60, mm = Math.floor(total/60)%60, hh = Math.floor(total/3600)%24, dd = Math.floor(total/86400);
+    setD('d0','d1',dd,'d'); setD('h0','h1',hh,'h'); setD('m0','m1',mm,'m'); setD('s0','s1',ss,'s');
+    if (ss !== lastSec) { if (soundOn) tick(); lastSec = ss; }
+  }
+  update(); setInterval(update, 250);
+</script>
+</body>
+</html>
